@@ -21,9 +21,10 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
  """
-from flask import Flask
+from flask import Flask, request
 import os
 import copy
+import markdown
 
 supported_languages = ["en", "fr"]
 
@@ -39,6 +40,7 @@ class HTMLDoc:
 			self.body = [body]
 		else:
 			self.body = body
+		self.response = 200
 	def get_css(css: str) -> str:
 		return "<style>"+css+"</style>"
 	def set_head(self, head: list or str) -> None:
@@ -66,14 +68,20 @@ class HTMLDoc:
 	def add_MD(self, md: str) -> None:
 		if (os.path.exists(md)):
 			fmd = open(md)
-			self.add_body(fmd.read())
+			self.add_body(markdown.markdown(fmd.read()))
 			fmd.close()
-		#else:
+		else:
+			fmd = open("md/404.md")
+			self.add_body(markdown.markdown(fmd.read()))
+			fmd.close()
+			self.response = 404
 			#404 Error
 	def get_body(self) -> str:
 		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
 	def get_html(self) -> str:
 		return "<html>"+self.get_head()+self.get_body()+"</html>"
+	def get_response(self) -> int:
+		return self.response
 
 fhtml = open("html/tb.html")
 fcss = open("css/style.css")
@@ -83,14 +91,17 @@ fcss.close()
 
 @app.route("/", methods = ['POST', 'GET'])
 def hello():
-	return page.get_html()
+	lang = request.accept_languages.best_match(supported_languages)
+	ret = copy.deepcopy(page)
+	ret.add_MD("md/index."+lang+".md")
+	return ret.get_html(), ret.get_response()
 
 @app.route("/<string:path>/", methods = ['POST', 'GET'])
 def path(path):
 	lang = request.accept_languages.best_match(supported_languages)
 	ret = copy.deepcopy(page)
 	ret.add_MD("md/"+path+"."+lang+".md")
-	return ret.get_html()
+	return ret.get_html(), ret.get_response()
 
 if __name__ == "__main__":
 	app.run()
