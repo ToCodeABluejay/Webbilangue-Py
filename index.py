@@ -23,6 +23,9 @@
  """
 from flask import Flask
 import os
+import copy
+
+supported_languages = ["en", "fr"]
 
 app = Flask(__name__)
 
@@ -36,7 +39,7 @@ class HTMLDoc:
 			self.body = [body]
 		else:
 			self.body = body
-	def get_css(self, css: str) -> str:
+	def get_css(css: str) -> str:
 		return "<style>"+css+"</style>"
 	def set_head(self, head: list or str) -> None:
 		if isinstance(head, str):
@@ -65,52 +68,29 @@ class HTMLDoc:
 			fmd = open(md)
 			self.add_body(fmd.read())
 			fmd.close()
-		else:
+		#else:
 			#404 Error
 	def get_body(self) -> str:
 		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
 	def get_html(self) -> str:
 		return "<html>"+self.get_head()+self.get_body()+"</html>"
 
-"""class Template:
-	def __init__(self, html: str, css: str):
-		fhtml = open(html)
-		self.html = fhtml.read()
-		fhtml.close()
-		fcss = open(css)
-		self.css = fcss.read()
-		fcss.close()
-		self.md = ""
-		self.mdexists = False
-		self.class = ""
-	def set_MD(path: str):
-		if (os.path.exists(path)):
-			fmd = open(path)
-			self.md = fmd.read()
-			fmd.close()
-			print("reading MD at "+path)
-			self.mdexists = True
-		else:
-			fmd = open("md/404.md")
-			self.md = fmd.read()
-			fmd.close()
-			self.mdexists = True
-	def set_class(class: str):
-		self.class = class
-	def get_page():
-		if not this.mdxists:
-			#404
-		return self.html + "<style>" + self.css + "</style" + "<div class=\"" + self.class + "\">"#+md+"</div>"""
-
 fhtml = open("html/tb.html")
 fcss = open("css/style.css")
-page = HTMLDoc(fhtml.read(), fcss.read())
+page = HTMLDoc(fhtml.read(), HTMLDoc.get_css(fcss.read()))
 fhtml.close()
 fcss.close()
 
-@app.route("/")
+@app.route("/", methods = ['POST', 'GET'])
 def hello():
-	return html
+	return page.get_html()
+
+@app.route("/<string:path>/", methods = ['POST', 'GET'])
+def path(path):
+	lang = request.accept_languages.best_match(supported_languages)
+	ret = copy.deepcopy(page)
+	ret.add_MD("md/"+path+"."+lang+".md")
+	return ret.get_html()
 
 if __name__ == "__main__":
 	app.run()
