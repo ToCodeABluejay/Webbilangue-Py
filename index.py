@@ -22,14 +22,78 @@
   SOFTWARE.
  """
 from flask import Flask
+import os
+
 app = Flask(__name__)
 
-fhtml = open("html/tb.html")
-html = fhtml.read()
-fhtml.close()
-fcss = open("css/style.css")
-css = fcss.read()
-fcss.close()
+class HTMLDoc:
+	def __init__(self, head: list or str, body: list or str):
+		if isinstance(head, str):
+			self.head = [head]
+		else:
+			self.head = head
+		if isinstance(body, str):
+			self.body = [body]
+		else:
+			self.body = body
+	def set_head(self, head: list or str) -> None:
+		if isinstance(head, str):
+			self.head = [head]
+		else:
+			self.head = head
+	def add_head(self, head: list or str) -> None:
+		if isinstance(head, str):
+			self.head.append(head)
+		else:
+			self.head += head
+	def get_head(self) -> str:
+		return "<head>"+''.join(str(x) for x in self.head)+"</head>"
+	def set_body(self, body: list or str) -> None:
+		if isinstance(body, str):
+			self.body = [body]
+		else:
+			self.body = body
+	def add_body(self, body: list or str) -> None:
+		if isinstance(body, str):
+			self.body.append(body)
+		else:
+			self.body += body
+	def get_body(self) -> str:
+		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
+	def get_html(self) -> str:
+		return "<html>"+self.get_head()+self.get_body()+"</html>"
+
+
+class Template:
+	def __init__(self, html: str, css: str):
+		fhtml = open(html)
+		self.html = fhtml.read()
+		fhtml.close()
+		fcss = open(css)
+		self.css = fcss.read()
+		fcss.close()
+		self.md = ""
+		self.mdexists = False
+		self.class = ""
+	def set_MD(path: str):
+		if (os.path.exists(path)):
+			fmd = open(path)
+			self.md = fmd.read()
+			fmd.close()
+			print("reading MD at "+path)
+			self.mdexists = True
+		else:
+			fmd = open("md/404.md")
+			self.md = fmd.read()
+			fmd.close()
+			self.mdexists = True
+	def set_class(class: str):
+		self.class = class
+	def get_page():
+		if not this.mdxists:
+			#404
+		return self.html + "<style>" + self.css + "</style" + "<div class=\"" + self.class + "\">"#+md+"</div>"
+		
 
 @app.route("/")
 def hello():
