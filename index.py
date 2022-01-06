@@ -36,6 +36,8 @@ class HTMLDoc:
 			self.body = [body]
 		else:
 			self.body = body
+	def get_css(self, css: str) -> str:
+		return "<style>"+css+"</style>"
 	def set_head(self, head: list or str) -> None:
 		if isinstance(head, str):
 			self.head = [head]
@@ -58,13 +60,19 @@ class HTMLDoc:
 			self.body.append(body)
 		else:
 			self.body += body
+	def add_MD(self, md: str) -> None:
+		if (os.path.exists(md)):
+			fmd = open(md)
+			self.add_body(fmd.read())
+			fmd.close()
+		else:
+			#404 Error
 	def get_body(self) -> str:
 		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
 	def get_html(self) -> str:
 		return "<html>"+self.get_head()+self.get_body()+"</html>"
 
-
-class Template:
+"""class Template:
 	def __init__(self, html: str, css: str):
 		fhtml = open(html)
 		self.html = fhtml.read()
@@ -92,8 +100,13 @@ class Template:
 	def get_page():
 		if not this.mdxists:
 			#404
-		return self.html + "<style>" + self.css + "</style" + "<div class=\"" + self.class + "\">"#+md+"</div>"
-		
+		return self.html + "<style>" + self.css + "</style" + "<div class=\"" + self.class + "\">"#+md+"</div>"""
+
+fhtml = open("html/tb.html")
+fcss = open("css/style.css")
+page = HTMLDoc(fhtml.read(), fcss.read())
+fhtml.close()
+fcss.close()
 
 @app.route("/")
 def hello():
