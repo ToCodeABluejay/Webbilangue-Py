@@ -78,10 +78,10 @@ class HTMLDoc:
 			#404 Error
 	def get_body(self) -> str:
 		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
-	def get_html(self) -> str:
-		return "<html>"+self.get_head()+self.get_body()+"</html>"
 	def get_response(self) -> int:
 		return self.response
+	def __str__(self) -> str:
+		return "<html>"+self.get_head()+self.get_body()+"</html>"
 
 fhtml = open("html/tb.html")
 fcss = open("css/style.css")
@@ -94,14 +94,14 @@ def hello():
 	lang = request.accept_languages.best_match(supported_languages)
 	ret = copy.deepcopy(page)
 	ret.add_MD("md/index."+lang+".md")
-	return ret.get_html(), ret.get_response()
+	return str(ret), ret.get_response()
 
 @app.route("/<string:path>/", methods = ['POST', 'GET'])
 def path(path):
 	lang = request.accept_languages.best_match(supported_languages)
 	ret = copy.deepcopy(page)
 	ret.add_MD("md/"+path+"."+lang+".md")
-	return ret.get_html(), ret.get_response()
+	return str(ret), ret.get_response()
 
 if __name__ == "__main__":
 	app.run()
