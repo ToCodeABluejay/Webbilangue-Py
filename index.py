@@ -54,6 +54,18 @@ class HTMLElem:
 			self.attr = attr
 	def set_middle(self, middle: str) -> None:
 		self.middle = middle
+	def add_MD(md: str) -> int:
+		if (os.path.exists(md)):
+			fmd = open(md)
+			self.set_middle(markdown.markdown(fmd.read()))
+			fmd.close()
+			return 200
+		else:
+			fmd = open("md/404.md")
+			self.set_middle(markdown.markdown(fmd.read()))
+			fmd.close()
+			return 404
+			#404 Error
 	def __str__(self) -> str:
 		if self.se:
 			return "</"+self.elem+" "+' '.join(str(x) for x in self.attr)+">"
@@ -95,18 +107,6 @@ class HTMLDoc:
 			self.body.append(body)
 		else:
 			self.body += body
-	def add_MD(md: str) -> [str, int]:
-		if (os.path.exists(md)):
-			fmd = open(md)
-			retv = markdown.markdown(fmd.read())
-			fmd.close()
-			return retv, 200
-		else:
-			fmd = open("md/404.md")
-			retv = markdown.markdown(fmd.read())
-			fmd.close()
-			return retv, 404
-			#404 Error
 	def get_body(self) -> str:
 		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
 	def get_response(self) -> int:
@@ -127,10 +127,9 @@ def hello():
 	lang = request.accept_languages.best_match(supported_languages)
 	ret = copy.deepcopy(page)
 	rtbdy = copy.deepcopy(body)
-	pr = HTMLDoc.add_MD("md/index."+lang+".md")
-	rtbdy.set_middle(pr[0])
+	status = rtbdy.add_MD("md/index."+lang+".md")
 	ret.add_body(str(rtbdy))
-	return str(ret), pr[1]
+	return str(ret), status
 
 @app.route("/<string:path>/", methods = ['POST', 'GET'])
 def path(path):
