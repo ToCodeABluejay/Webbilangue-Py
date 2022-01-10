@@ -30,6 +30,30 @@ supported_languages = ["en", "fr"]
 
 app = Flask(__name__)
 
+class HTMLElem:
+	def __init__(self, elem: str, attr=[]: list, se=False: bool):
+		self.elem = elem
+		self.attr = attr
+		self.se = se
+		self.middle = ""
+	def add_attr(self, attr: list or str) -> None:
+		if isinstance(attr, str):
+			self.attr.append(attr)
+		else:
+			self.attr += attr
+	def set_attr(self, attr: list or str) -> None:
+		if isinstance(attr, str):
+			self.attr = [attr]
+		else:
+			self.attr += attr
+	def set_middle(self, middle: str) -> None:
+		self.middle = middle
+	def __str__(self) -> str:
+		if self.se:
+			return "</"+self.elem+' '.join(str(x) for x in self.attr)+">"
+		else:
+			return "<"+self.elem+' '.join(str(x) for x in self.attr)+">"+self.middle+"</"+self.elem+">"
+
 class HTMLDoc:
 	def __init__(self, head: list or str, body: list or str):
 		if isinstance(head, str):
