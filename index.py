@@ -31,10 +31,16 @@ supported_languages = ["en", "fr"]
 app = Flask(__name__)
 
 class HTMLElem:
-	def __init__(self, elem: str, attr=[]: list, se=False: bool):
+	def __init__(self, elem: str, attr: list or str, se=False):
 		self.elem = elem
-		self.attr = attr
-		self.se = se
+		if isinstance(attr, str):
+			self.attr = [attr]
+		else:
+			self.attr = attr
+		if isinstance(se, bool):
+			self.se = se
+		else:
+			print("Invalid option for se parameter!")
 		self.middle = ""
 	def add_attr(self, attr: list or str) -> None:
 		if isinstance(attr, str):
@@ -45,14 +51,14 @@ class HTMLElem:
 		if isinstance(attr, str):
 			self.attr = [attr]
 		else:
-			self.attr += attr
+			self.attr = attr
 	def set_middle(self, middle: str) -> None:
 		self.middle = middle
 	def __str__(self) -> str:
 		if self.se:
-			return "</"+self.elem+' '.join(str(x) for x in self.attr)+">"
+			return "</"+self.elem+" "+' '.join(str(x) for x in self.attr)+">"
 		else:
-			return "<"+self.elem+' '.join(str(x) for x in self.attr)+">"+self.middle+"</"+self.elem+">"
+			return "<"+self.elem+" "+' '.join(str(x) for x in self.attr)+">"+self.middle+"</"+self.elem+">"
 
 class HTMLDoc:
 	def __init__(self, head: list or str, body: list or str):
@@ -89,16 +95,17 @@ class HTMLDoc:
 			self.body.append(body)
 		else:
 			self.body += body
-	def add_MD(self, md: str) -> None:
+	def add_MD(md: str) -> [str, int]:
 		if (os.path.exists(md)):
 			fmd = open(md)
-			self.add_body(markdown.markdown(fmd.read()))
+			retv = markdown.markdown(fmd.read())
 			fmd.close()
+			return retv, 200
 		else:
 			fmd = open("md/404.md")
-			self.add_body(markdown.markdown(fmd.read()))
+			retv = markdown.markdown(fmd.read())
 			fmd.close()
-			self.response = 404
+			return retv, 404
 			#404 Error
 	def get_body(self) -> str:
 		return "<body>"+''.join(str(x) for x in self.body)+"</body>"
@@ -113,12 +120,17 @@ page = HTMLDoc(fhtml.read(), HTMLDoc.get_css(fcss.read()))
 fhtml.close()
 fcss.close()
 
+body = HTMLElem("div", "class=body")
+
 @app.route("/", methods = ['POST', 'GET'])
 def hello():
 	lang = request.accept_languages.best_match(supported_languages)
 	ret = copy.deepcopy(page)
-	ret.add_MD("md/index."+lang+".md")
-	return str(ret), ret.get_response()
+	rtbdy = copy.deepcopy(body)
+	pr = HTMLDoc.add_MD("md/index."+lang+".md")
+	rtbdy.set_middle(pr[0])
+	ret.add_body(str(rtbdy))
+	return str(ret), pr[1]
 
 @app.route("/<string:path>/", methods = ['POST', 'GET'])
 def path(path):
