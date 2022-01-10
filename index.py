@@ -54,7 +54,7 @@ class HTMLElem:
 			self.attr = attr
 	def set_middle(self, middle: str) -> None:
 		self.middle = middle
-	def add_MD(md: str) -> int:
+	def add_MD(self, md: str) -> int:
 		if (os.path.exists(md)):
 			fmd = open(md)
 			self.set_middle(markdown.markdown(fmd.read()))
