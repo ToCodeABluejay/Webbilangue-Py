@@ -30,6 +30,21 @@ supported_languages = ["en", "fr"]
 
 app = Flask(__name__)
 
+class NavBar:
+	"""
+	A class to help us define multi-lingual navigation bars, with
+	some CSS supported intended to be included. This is simply meant
+	to make our job easier when translating our navigation bars ;)
+	
+	P.s. not finished implementing yet...
+	"""
+	def __init__(self):
+		self.links = list()
+	def add_link(self, link: list) -> None:
+		self.links += link
+	def get_navbar(self) -> str:
+		return "<ul>"+"</ul>"
+
 class HTMLElem:
 	def __init__(self, elem: str, attr: list or str, se=False):
 		self.elem = elem
