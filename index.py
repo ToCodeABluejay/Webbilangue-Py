@@ -1,5 +1,5 @@
 #!/bin/python
-""" Webilangue-Py - Gabriel Bauer (@ToCodeABluejay)
+"""Webilangue-Py - Gabriel Bauer (@ToCodeABluejay)
  
   Copyright (c) 2021 Gabriel Bauer (@ToCodeABluejay)
  
@@ -135,8 +135,10 @@ def hello():
 def path(path):
 	lang = request.accept_languages.best_match(supported_languages)
 	ret = copy.deepcopy(page)
-	ret.add_MD("md/"+path+"."+lang+".md")
-	return str(ret), ret.get_response()
+	rtbdy = copy.deepcopy(body)
+	status = rtbdy.add_MD("md/"+path+"."+lang+".md")
+	ret.add_body(str(rtbdy))
+	return str(ret), status
 
 if __name__ == "__main__":
 	app.run()
